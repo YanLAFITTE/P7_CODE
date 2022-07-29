@@ -1,0 +1,30 @@
+POST http://localhost:3000/posts
+Content-type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InlhbkBnbWFpbC5jb20iLCJpYXQiOjE2NTg5NTEyNzEsImV4cCI6MTY1OTAzNzY3MX0.YFiiIvVXfjcSavqQKa9ooqD2aixgh2m3s1A6c7PqagE
+
+{"content": "Hello World !"}
+
+###
+
+POST http://localhost:3000/auth/login
+Content-type: application/json
+
+{
+    "email": "yan@gmail.com",
+    "password": "aze123"
+} 
+###
+
+POST http://localhost:3000/auth/signup
+Content-type: application/json
+
+{
+    "email": "bob@gmail.com",
+    "password": "aze123",
+    "confirmPassword": "aze123"
+} 
+###
+GET http://localhost:3000/posts
+Content-type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InlhbkBnbWFpbC5jb20iLCJpYXQiOjE2NTg5NTEyNzEsImV4cCI6MTY1OTAzNzY3MX0.YFiiIvVXfjcSavqQKa9ooqD2aixgh2m3s1A6c7PqagE
+
