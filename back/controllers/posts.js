@@ -49,7 +49,7 @@ exports.createPost = (req, res) => {
 
   const email = req.email;
   const post = {
-    id: posts.length + 1,
+    id: String(posts.length + 1),
     email,
     imageUrl: url,
     content,
@@ -70,25 +70,32 @@ function createImageUrl(req) {
 exports.createComment = (req, res) => {
   const postId = req.params.id;
   const post = posts.find((post) => post.id == postId);
-
-  console.log("post:", post);
+  if (post == null) {
+    return res.status(404).send({ error: "Post not found" });
+  }
   const id =
     Math.random().toString(36).substring(2, 15) +
     Math.random().toString(36).substring(2, 15);
 
   const email = req.email;
   const commentToSend = { id, email, content: req.body.comment };
-  console.log("comment:", commentToSend);
   post.comments.push(commentToSend);
   res.send({ post });
 };
 
 exports.deletePost = (req, res) => {
   const postId = req.params.id;
-  console.log(postId)
-  // const post = posts.find((post) => post.id === postId);
-  // const index = posts.indexOf(post);
-  // post.splice(index, 1);
-  // console.log("posts:", posts);
-  // res.send({ message: `Post ${postId} was delted` }, posts);
+  const post = posts.find((post) => post.id === postId);
+
+  if (post == null) {
+    res.status(404).send({ error: "Post not found" });
+  }
+  const index = posts.indexOf(post);
+  posts.splice(index, 1);
+  deleteComments(post);
+  res.status(200).send({ message: `Post ${postId} was delted`, posts });
 };
+
+function deleteComments(post) {
+  post.comments = [];
+}

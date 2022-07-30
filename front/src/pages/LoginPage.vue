@@ -37,6 +37,8 @@ export default {
           const token = res.token;
           localStorage.setItem("token", token);
           router.push("/home");
+
+          
         })
         .catch((err) => {
           console.error(err);

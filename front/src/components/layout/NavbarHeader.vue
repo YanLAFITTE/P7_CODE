@@ -8,14 +8,15 @@ export default {
   created() {
     const token = localStorage.getItem("token");
     if (token == null) {
-      this.isLoggedIn = true;
+      this.isLoggedIn = false;
     }
   },
   methods: {
     logout() {
       localStorage.removeItem("token");
-      this.$router.push("/login");
+      this.$router.go();
     },
+    
   },
 };
 </script>
@@ -50,6 +51,7 @@ export default {
           </li>
         </ul>
         <button
+
           v-if="this.isLoggedIn"
           type="button"
           class="btn btn-outline-light"

@@ -16,7 +16,6 @@ export default {
       const { VITE_SERVER_ADDRESS, VITE_SERVER_PORT } = import.meta.env;
       const url = `http://${VITE_SERVER_ADDRESS}:${VITE_SERVER_PORT}/posts`;
 
-      console.log(this.currentComment, this.$props.id);
       const options = {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -28,7 +27,7 @@ export default {
           comment: this.currentComment,
         }),
       };
-      console.log("options:", options);
+
       fetch(url + "/" + this.$props.id, options)
         .then((res) => {
           if (res.status === 200) {
@@ -38,12 +37,12 @@ export default {
           }
         })
         .then((res) => {
-          console.log("res:", res);
+
           this.$router.go();
         })
         .catch((err) => console.log("err:", err));
     },
-    deletePost() {
+    deletePost(e) {
       const { VITE_SERVER_ADDRESS, VITE_SERVER_PORT } = import.meta.env;
       const url = `http://${VITE_SERVER_ADDRESS}:${VITE_SERVER_PORT}/posts`;
 
@@ -51,6 +50,7 @@ export default {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
           Accept: "application/json",
+          "Content-type": "application/json",
         },
         method: "DELETE",
       })
@@ -62,7 +62,6 @@ export default {
           }
         })
         .then((res) => {
-          console.log("res:", res);
           this.$router.go();
         })
         .catch((err) => console.log("err:", err));
@@ -107,9 +106,13 @@ export default {
   </div>
 </template>
 <style>
-.bi bi-trash {
-  font-size: 2rem;
+.bi-trash {
+  font-size: 1.2rem;
   color: black;
+}
+.bi-trash:hover {
+cursor: pointer;
+color: red;
 }
 @media (min-width: 992px) {
   .card {
