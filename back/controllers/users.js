@@ -4,56 +4,59 @@ const bcrypt = require("bcrypt");
 // Access token returned with each HTTP request to the server.
 const jwt = require("jsonwebtoken");
 
-const { PrismaClient } = require("@prisma/client");
-const prisma = new PrismaClient();
-
 //DB
-const { users } = require("../db/db.js");
+const { users, prisma } = require("../db/db.js");
 
-exports.signup = (req, res, next) => {
+exports.signup = async (req, res, next) => {
   const { email, password, confirmPassword } = req.body;
-  if (password !== confirmPassword)
-    return res.status(400).send({ error: "Passwords don't match" });
-  const user = getUser(email);
-  if (user != null)
-    return res.status(400).send({ error: "User already exists" });
-  hashedPassword(password)
-    .then((hash) => saveUser({ email, password: hash }))
-    .then((user) => res.send({ user }))
-    .catch((error) => res.status(500).json({ error }));
+  try {
+    if (password !== confirmPassword)
+      return res.status(400).send({ error: "Passwords don't match" });
+    const dbUser = await getUser(email);
+    if (dbUser != null)
+      return res.status(400).send({ error: "User already exists" });
+    const hash = await hashedPassword(password);
+    const user = await saveUser({ email, password: hash });
+    res.send({ user });
+  } catch (error) {
+    res.status(500).json({ error });
+  }
 };
 
-function saveUser(user) {
+saveUser = (user) => {
   users.push(user);
   return prisma.user.create({ data: user });
-}
-
-function hashedPassword(password) {
-  return bcrypt.hash(password, 10);
-}
-
-exports.login = (req, res) => {
-  const { email, password } = req.body;
-  const user = getUser(email);
-  if (user == null) return res.status(404).send({ error: "User not found" });
-
-  verifyPassword(user, password)
-    .then((valid) => {
-      if (!valid) return res.status(401).send({ error: "Wrong password" });
-      const token = makeToken(email);
-      res.send({ token: token, email: user.email });
-    })
-    .catch((error) => res.status(500).json({ error }));
 };
 
-function makeToken(email) {
+hashedPassword = (password) => {
+  return bcrypt.hash(password, 10);
+};
+
+exports.login = async (req, res) => {
+  const { email, password } = req.body;
+  try {
+    const user = await getUser(email);
+    if (user == null) return res.status(404).send({ error: "User not found" });
+
+    const isPasswordValid = await verifyPassword(user, password);
+
+    if (!isPasswordValid)
+      return res.status(401).send({ error: "Wrong password" });
+    const token = makeToken(email);
+    res.send({ token: token, email: user.email });
+  } catch (error) {
+    res.status(500).json({ error });
+  }
+};
+
+makeToken = (email) => {
   return jwt.sign({ email }, process.env.TOKEN_PASSWORD, { expiresIn: "24h" });
-}
+};
 
-function getUser(email) {
-  return users.find((user) => user.email === email);
-}
+getUser = (email) => {
+  return prisma.user.findUnique({ where: { email } });
+};
 
-function verifyPassword(user, password) {
+verifyPassword = (user, password) => {
   return bcrypt.compare(password, user.password);
-}
+};

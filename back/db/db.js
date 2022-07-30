@@ -16,6 +16,9 @@ const robert = {
 };
 const users = [yan, alexis, robert];
 
+const { PrismaClient } = require("@prisma/client");
+const prisma = new PrismaClient();
+
 ////////////////////
 
-module.exports = { users };
+module.exports = { users, prisma };

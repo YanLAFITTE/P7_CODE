@@ -1,3 +1,6 @@
+const {  prisma } = require("../db/db.js");
+
+
 const comment1 = {
   id: "comment1",
   email: "yan@gmail.com",
@@ -55,9 +58,12 @@ exports.createPost = (req, res) => {
     content,
     comments: [],
   };
-
-  posts.unshift(post);
-  res.send({ post });
+prisma.post.create({data: post})
+.then((post) => {
+console.log("posts:", posts)
+  // posts.unshift(post);
+  // res.send({ post });
+})
 };
 
 function createImageUrl(req) {
