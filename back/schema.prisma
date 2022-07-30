@@ -10,7 +10,15 @@ datasource db {
 }
 
 model User {
-  id    Int     @id @default(autoincrement())
-  email String  @unique
-  name  String?
+  id        Int     @id @default(autoincrement())
+  email     String  @unique
+  password  String
+}
+
+model Post {
+  id        Int     @id @default(autoincrement())
+//   email  "yan@gmail.com",
+  content   String 
+  imageUrl  String
+//   comments  [comment1, comment2],
 }

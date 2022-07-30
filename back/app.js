@@ -17,10 +17,6 @@ app.use(cors());
 app.use(express.json());
 
 
-const { PrismaClient } = require('@prisma/client')
-const prisma = new PrismaClient()
-// Run inside `async` function
-const allUsers = prisma.user.findMany().then(console.log).catch(console.error)
 
 app.use("/images", express.static(path.join(__dirname, "images")));
 
