@@ -37,7 +37,7 @@ export default {
           }
         })
         .then((res) => {
-
+          console.log(res);
           this.$router.go();
         })
         .catch((err) => console.log("err:", err));
@@ -111,8 +111,8 @@ export default {
   color: black;
 }
 .bi-trash:hover {
-cursor: pointer;
-color: red;
+  cursor: pointer;
+  color: red;
 }
 @media (min-width: 992px) {
   .card {

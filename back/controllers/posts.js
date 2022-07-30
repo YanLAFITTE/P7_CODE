@@ -1,5 +1,4 @@
-const {  prisma } = require("../db/db.js");
-
+const { prisma } = require("../db/db.js");
 
 const comment1 = {
   id: "comment1",
@@ -44,33 +43,30 @@ exports.getPosts = (req, res) => {
   res.send({ posts, email });
 };
 
-exports.createPost = (req, res) => {
+exports.createPost = async (req, res) => {
   const content = req.body.content;
-  const hasImage = req.file != null;
-
-  const url = hasImage ? createImageUrl(req) : null;
-
   const email = req.email;
-  const post = {
-    id: String(posts.length + 1),
-    email,
-    imageUrl: url,
-    content,
-    comments: [],
-  };
-prisma.post.create({data: post})
-.then((post) => {
-console.log("posts:", posts)
-  // posts.unshift(post);
-  // res.send({ post });
-})
+
+  try {
+    const user = await prisma.user.findUnique({ where: { email } });
+    const userId = user.id;
+    const post = { userId, content };
+    addImageUrlToPost(req, post);
+    const result = await prisma.post.create({ data: post });
+    res.send({ post: result });
+  } catch (error) {
+    res.status(500).send({ error: "Failed to create post" });
+  }
 };
 
-function createImageUrl(req) {
+function addImageUrlToPost(req, post) {
+  const hasImage = req.file != null;
+  if (!hasImage) return;
   let pathToImage = req.file.path.replace("\\", "/");
   const protocol = req.protocol;
   const host = req.get("host");
-  return `${protocol}://${host}/${pathToImage}`;
+  const url = `${protocol}://${host}/${pathToImage}`;
+  post.imageUrl = url;
 }
 
 exports.createComment = (req, res) => {
