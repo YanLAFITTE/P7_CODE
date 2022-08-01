@@ -38,9 +38,33 @@ const post3 = {
 
 const posts = [post1, post2, post3];
 
-exports.getPosts = (req, res) => {
+exports.getPosts = async (req, res) => {
   const email = req.email;
-  res.send({ posts, email });
+  const posts = await prisma.post.findMany({
+    include: {
+      comments: {
+        orderBy: {
+          createdAt: "asc",
+        },
+        include: {
+          user: {
+            select: {
+              email: true,
+            },
+          },
+        },
+      },
+      user: {
+        select: {
+          email: true,
+        },
+      },
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+  res.send({ posts: posts, email });
 };
 
 exports.createPost = async (req, res) => {
@@ -53,13 +77,14 @@ exports.createPost = async (req, res) => {
     const post = { userId, content };
     addImageUrlToPost(req, post);
     const result = await prisma.post.create({ data: post });
+    console.log("result:", result);
     res.send({ post: result });
   } catch (error) {
     res.status(500).send({ error: "Failed to create post" });
   }
 };
 
-function addImageUrlToPost(req, post) {
+addImageUrlToPost = (req, post) => {
   const hasImage = req.file != null;
   if (!hasImage) return;
   let pathToImage = req.file.path.replace("\\", "/");
@@ -67,22 +92,31 @@ function addImageUrlToPost(req, post) {
   const host = req.get("host");
   const url = `${protocol}://${host}/${pathToImage}`;
   post.imageUrl = url;
-}
+};
 
-exports.createComment = (req, res) => {
-  const postId = req.params.id;
-  const post = posts.find((post) => post.id == postId);
+exports.createComment = async (req, res) => {
+  const postId = Number(req.params.id);
+
+  const post = await prisma.post.findUnique({
+    where: { id: postId },
+    include: {
+      user: {
+        select: {
+          id: true,
+        },
+      },
+    },
+  });
   if (post == null) {
     return res.status(404).send({ error: "Post not found" });
   }
-  const id =
-    Math.random().toString(36).substring(2, 15) +
-    Math.random().toString(36).substring(2, 15);
 
-  const email = req.email;
-  const commentToSend = { id, email, content: req.body.comment };
-  post.comments.push(commentToSend);
-  res.send({ post });
+  const userId = post.user.id;
+
+  const commentToSend = { userId, postId, content: req.body.comment }; 
+  const comment = await prisma.comment.create({ data: commentToSend }); 
+
+  res.send({ comment });
 };
 
 exports.deletePost = (req, res) => {
@@ -98,6 +132,6 @@ exports.deletePost = (req, res) => {
   res.status(200).send({ message: `Post ${postId} was delted`, posts });
 };
 
-function deleteComments(post) {
+deleteComments = (post) => {
   post.comments = [];
-}
+};

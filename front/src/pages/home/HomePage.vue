@@ -35,6 +35,8 @@ export default {
 
       .then((res) => {
         const { email, posts } = res;
+        console.log(res.email)
+        console.log(res.posts)
         // const posts = res.posts;
         // const email = res.email;
         this.posts = posts;
@@ -64,7 +66,7 @@ export default {
     <div v-if="posts.length === 0">No posts to display. Start chatting!</div>
     <div v-for="post in posts">
       <Post
-        :email="post.email"
+        :email="post.user.email"
         :id="post.id"
         :url="post.imageUrl"
         :content="post.content"

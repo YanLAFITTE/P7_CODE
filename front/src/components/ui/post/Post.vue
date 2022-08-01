@@ -62,6 +62,7 @@ export default {
           }
         })
         .then((res) => {
+          console.log(res)
           this.$router.go();
         })
         .catch((err) => console.log("err:", err));
@@ -73,7 +74,7 @@ export default {
   <div class="card mb-3 m-auto">
     <div class="card-body">
       <div class="card-header mb-3 bg-white">
-        <div class="header-infos mt-3">
+        <div class="header-infos ">
           <strong>{{ email }}</strong>
         </div>
         <i class="bi bi-trash" @click="deletePost"></i>
@@ -83,7 +84,7 @@ export default {
 
       <img v-if="url" :src="url" class="card-img-bottom mb-4" alt="image" />
       <div v-for="comment in comments">
-        <Comment :email="comment.email" :content="comment.content" />
+        <Comment :email="comment.user.email" :content="comment.content" />
       </div>
 
       <div class="d-flex gap-1">
